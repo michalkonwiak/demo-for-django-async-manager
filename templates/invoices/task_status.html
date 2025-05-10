@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Task Status - Invoice Management System{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Task Status</h1>
+    <a href="javascript:history.back()" class="btn btn-secondary shadow-sm">
+        <i class="fas fa-arrow-left fa-sm text-white-50 me-1"></i> Back
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Task Details</h6>
+                <span class="badge {% if task.status == 'completed' %}bg-success{% elif task.status == 'failed' %}bg-danger{% elif task.status == 'running' %}bg-info{% else %}bg-secondary{% endif %}">
+                    {{ task.status|title }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Basic Information</h5>
+                    <p><strong>Task ID:</strong> {{ task.id }}</p>
+                    <p><strong>Name:</strong> {{ task.name }}</p>
+                    <p><strong>Queue:</strong> {{ task.queue }}</p>
+                    <p><strong>Priority:</strong> {{ task.get_priority_display }}</p>
+                    <p><strong>Status:</strong> {{ task.status }}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>Timing Information</h5>
+                    <p><strong>Created:</strong> {{ task.created_at }}</p>
+                    {% if task.started_at %}
+                    <p><strong>Started:</strong> {{ task.started_at }}</p>
+                    {% endif %}
+                    {% if task.completed_at %}
+                    <p><strong>Completed:</strong> {{ task.completed_at }}</p>
+                    {% endif %}
+                    {% if task.started_at and task.completed_at %}
+                    <p><strong>Duration:</strong> {{ task.completed_at|timeuntil:task.started_at }}</p>
+                    {% endif %}
+                </div>
+                
+                {% if task.error %}
+                <div class="mb-4">
+                    <h5 class="text-danger">Error Information</h5>
+                    <div class="alert alert-danger">
+                        <pre class="mb-0">{{ task.error }}</pre>
+                    </div>
+                    {% if task.retry_count > 0 %}
+                    <p><strong>Retry Count:</strong> {{ task.retry_count }} / {{ task.max_retries }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% if task.result %}
+                <div class="mb-4">
+                    <h5>Task Result</h5>
+                    <pre class="bg-light p-3 rounded">{{ task.result }}</pre>
+                </div>
+                {% endif %}
+                
+                {% if task.dependencies.all %}
+                <div class="mb-4">
+                    <h5>Dependencies</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Task ID</th>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for dep in task.dependencies.all %}
+                                <tr>
+                                    <td>{{ dep.id }}</td>
+                                    <td>{{ dep.name }}</td>
+                                    <td>
+                                        <span class="badge {% if dep.status == 'completed' %}bg-success{% elif dep.status == 'failed' %}bg-danger{% elif dep.status == 'running' %}bg-info{% else %}bg-secondary{% endif %}">
+                                            {{ dep.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'task_status' dep.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh the page if the task is still running
+    {% if task.status == 'pending' or task.status == 'running' %}
+    setTimeout(function() {
+        location.reload();
+    }, 5000);  // Refresh every 5 seconds
+    {% endif %}
+</script>
+{% endblock %}

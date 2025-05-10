@@ -1,0 +1,12 @@
+asgiref==3.8.1
+chardet==5.2.0
+croniter==6.0.0
+Django==5.2.1
+django-async-manager==0.1.1
+pillow==11.2.1
+python-dateutil==2.9.0.post0
+python-decouple==3.8
+pytz==2025.2
+reportlab==4.4.0
+six==1.17.0
+sqlparse==0.5.3
