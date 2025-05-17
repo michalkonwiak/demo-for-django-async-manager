@@ -2,8 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.urls import reverse
-from django.utils import timezone
 from django.core.paginator import Paginator
 
 from .models import Customer, Invoice, InvoiceItem

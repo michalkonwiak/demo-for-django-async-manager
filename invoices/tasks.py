@@ -1,6 +1,5 @@
 import logging
 import random
-import time
 import os
 from datetime import datetime, timedelta
 from decimal import Decimal
